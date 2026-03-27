@@ -68,6 +68,10 @@
 
     <div class="app-container">
 
+        <audio id="silent-audio" loop playsinline>
+            <source src="data:audio/mpeg;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg">
+        </audio>
+
         <div id="loading-overlay">
             <p class="font-bold text-gray-400 uppercase tracking-widest text-xs">Gegevens laden...</p>
         </div>
@@ -175,7 +179,7 @@
                         
                         <div class="z-10 ml-2 relative flex items-center justify-center cursor-pointer hover:scale-105 transition" onclick="document.getElementById('home-hero-btn').click()">
                             <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/30 text-2xl shadow-inner">
-                                ⚡️
+                                🔥
                             </div>
                         </div>
 
@@ -225,7 +229,6 @@
                                 <button onclick="startWorkoutRoutine('kracht-back-biceps')" class="flex-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-full transition hover:bg-black">Start</button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -428,7 +431,19 @@
         <div id="bottom-nav" class="hidden absolute bottom-0 w-full bg-white/95 backdrop-blur-md h-24 pb-4 flex justify-around items-center px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-40 border-t border-gray-100 shrink-0">
             <button onclick="navigeerNaar('screen-home')" id="nav-home" class="nav-btn w-14 flex flex-col items-center text-gray-900 transition flex items-center justify-center p-2"><svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
             <button onclick="navigeerNaar('screen-calendar')" id="nav-calendar" class="nav-btn w-14 flex flex-col items-center text-gray-400 hover:text-gray-900 transition flex items-center justify-center p-2"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></button>
-            <button onclick="navigeerNaar('screen-workouts')" id="nav-workouts" class="nav-btn w-14 flex flex-col items-center text-gray-400 hover:text-gray-900 transition flex items-center justify-center p-2"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 21.01h4V20h5V16.01h4V12.01h-4V8h-5V7.01h-4V12h-4V7h-5v4.01h-4V16h4V21.01h4V16h4V21.01h4Z"/></svg></button>
+            
+            <button onclick="navigeerNaar('screen-workouts')" id="nav-workouts" class="nav-btn w-14 flex flex-col items-center text-gray-400 hover:text-gray-900 transition flex items-center justify-center p-2">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.4 14.4l-4.8-4.8" />
+                  <path d="M6.9 17.1l-1.4 1.4-2.8-2.8 1.4-1.4" />
+                  <path d="M21.2 6.8l-1.4-1.4-2.8 2.8 1.4 1.4" />
+                  <path d="M12.3 16.5l-4.8-4.8" />
+                  <path d="M11.7 7.5l4.8 4.8" />
+                  <path d="M5.5 15.7l1.4-1.4c1.1-1.1 1.1-2.9 0-4s-2.9-1.1-4 0l-1.4 1.4c-1.1 1.1-1.1 2.9 0 4s2.9 1.1 4 0z" />
+                  <path d="M18.5 8.3l-1.4 1.4c-1.1 1.1-1.1 2.9 0 4s2.9 1.1 4 0l1.4-1.4c1.1-1.1 1.1-2.9 0-4s-2.9-1.1-4 0z" />
+                </svg>
+            </button>
+            
             <button onclick="navigeerNaar('screen-activity')" id="nav-activity" class="nav-btn w-14 flex flex-col items-center text-gray-400 hover:text-gray-900 transition flex items-center justify-center p-2"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
         </div>
 
@@ -624,7 +639,6 @@
             'kracht-legs': { title: 'Legs & Cardio', type: 'kracht', target: 'Kracht', exercises: [{ name: 'Warm-up: Lopen (Berg)', target: 'Cardio', sets: 1, reps: '10 MIN', weight: null }, { name: 'Squats (Smith Machine)', target: 'Benen', sets: 3, reps: '8', weight: 'kg' }, { name: 'Deadlift', target: 'Benen', sets: 3, reps: '8', weight: 'kg' }, { name: 'Leg Press', target: 'Benen', sets: 3, reps: '10', weight: 'kg' }, { name: 'Leg Extension', target: 'Benen', sets: 4, reps: '10', weight: 'kg' }, { name: 'Hamstring Curl', target: 'Benen', sets: 4, reps: '10', weight: 'kg' }, { name: 'Calf Raises (Smith Machine)', target: 'Kuiten', sets: 5, reps: '15', weight: 'kg' }, { name: 'Uitfietsen', target: 'Cardio', sets: 1, reps: '15 MIN', weight: null }, { name: 'Stretch', target: 'Cooling-down', sets: 1, reps: '10 MIN', weight: null }] },
             'hardlopen-afvallen': { title: 'Lichte Cardio Verbranding', type: 'run-continuous', target: 'Afvallen', warmup: 300, runTime: 1200, cooldown: 300 },
             'hardlopen-hyrox': { title: 'Hyrox Interval Sprints', type: 'run-interval', target: 'Hyrox', warmup: 300, runMin: 60, walkMin: 90, reps: 8, cooldown: 300 },
-            // NIEUWE TOEGEVOEGDE SCHEMA'S
             'kracht-dumbbell-chest': { title: 'Dumbbell Chest Workout', type: 'kracht', target: 'Borst', time: '40 min', exercises: [ { name: 'Push-ups', target: 'Borst', sets: 3, reps: '15', weight: null }, { name: 'Supine dumbbell push', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Supine dumbbell fly', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell hip-bridge press', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell hip-bridge fly', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell bent over row', target: 'Rug', sets: 3, reps: '12', weight: 'kg' } ] },
             'kracht-total-core': { title: 'Total Core Darebee', type: 'kracht', target: 'Core', time: '20 min', exercises: [ { name: 'High knees', target: 'Cardio', sets: 3, reps: '30', weight: null }, { name: 'Climber taps', target: 'Core', sets: 3, reps: '10', weight: null }, { name: 'Plank walk-outs', target: 'Core', sets: 3, reps: '4', weight: null }, { name: 'Alt arm/leg raises', target: 'Core', sets: 3, reps: '4', weight: null }, { name: 'Side plank crunches', target: 'Core', sets: 3, reps: '4', weight: null } ] }
         };
@@ -977,21 +991,35 @@
 
         function initAudio() {
             try {
-                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
                 if(audioCtx.state === 'suspended') audioCtx.resume();
+                
+                // Activeer de achtergrond hack
+                document.getElementById('silent-audio').play().catch(e => console.log('Silent audio verzoek afgebroken door browser.'));
+                
+                // Kleine onhoorbare piep om de AudioContext 100% te ontgrendelen
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                gain.gain.value = 0.01;
+                osc.start(); osc.stop(audioCtx.currentTime + 0.01);
             } catch(e) {}
         }
 
         function playBeep() {
             try {
                 if(!audioCtx) return;
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                
                 const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
                 gain.gain.setValueAtTime(1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
-            } catch(e) {}
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) { console.log('Piep mislukt'); }
         }
 
         function startWorkoutRoutine(workoutId) { 
@@ -1003,6 +1031,7 @@
         
         function stopWorkout() { 
             clearInterval(mainTimerInterval); releaseWakeLock(); 
+            document.getElementById('silent-audio').pause();
             
             if(currentActiveWorkoutId && workoutDatabase[currentActiveWorkoutId]) {
                 let w = workoutDatabase[currentActiveWorkoutId];
@@ -1039,11 +1068,15 @@
             
             mainTimerInterval = setInterval(() => { 
                 if(!isPaused) { 
-                    let timeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
+                    let now = Date.now();
+                    let timeLeft = Math.max(0, Math.round((runTargetEndTime - now) / 1000));
                     document.getElementById('run-timer').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
-                    if(timeLeft <= 0) { playBeep(); goToNextRunStep(); }
+                    if(now >= runTargetEndTime) { 
+                        playBeep(); 
+                        goToNextRunStep(); 
+                    }
                 } 
-            }, 1000); 
+            }, 500); 
         }
 
         function loadRunStep(index) { 
@@ -1062,8 +1095,11 @@
         function skipRunStep() { if(isPaused) toggleRunPause(); goToNextRunStep(); }
         function toggleRunPause() { 
             isPaused = !isPaused; 
-            if(isPaused) { pausedTimeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000)); } 
-            else { runTargetEndTime = Date.now() + (pausedTimeLeft * 1000); }
+            if(isPaused) {
+                pausedTimeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
+            } else {
+                runTargetEndTime = Date.now() + (pausedTimeLeft * 1000);
+            }
             document.getElementById('run-action').innerText = isPaused ? "Gepauzeerd" : runSteps[currentRunStepIndex].action; 
         }
         function goToNextRunStep() { currentRunStepIndex++; if(currentRunStepIndex >= runSteps.length) { stopWorkout(); } else { loadRunStep(currentRunStepIndex); } }
