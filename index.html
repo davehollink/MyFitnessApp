@@ -66,7 +66,7 @@
         .set-row.completed .set-check { background-color: #22c55e; border-color: #22c55e; color: white; }
 
         .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
-        #loading-overlay { position: absolute; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; }
+        #loading-overlay { position: absolute; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 10px; }
     </style>
 </head>
 <body>
@@ -507,7 +507,14 @@
         function logOut() { auth.signOut(); }
 
         function loadUserData(uid) {
+            // VEILIGHEID: Stop met laden na 8 seconden en geef foutmelding als database weigert.
+            const fallbackTimer = setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                alert("Let op: de database geeft geen antwoord. Controleer in je Firebase console of je 'Firestore Database' (Testmodus) daadwerkelijk hebt geactiveerd!");
+            }, 8000);
+
             db.collection('users').doc(uid).get().then(doc => {
+                clearTimeout(fallbackTimer);
                 document.getElementById('loading-overlay').style.display = 'none';
                 if(doc.exists) {
                     let data = doc.data();
@@ -516,8 +523,15 @@
                     if(data.logbook) completedWorkoutsList = data.logbook;
                     completedWorkoutsList.forEach(log => { if(typeof log.date === 'string') log.date = new Date(log.date); });
                     updateProfileUI(); navigeerNaar('screen-home'); document.getElementById('bottom-nav').classList.remove('hidden');
-                } else { navigeerNaar('screen-ob-goal'); }
-            }).catch(err => { document.getElementById('loading-overlay').style.display = 'none'; console.error("Fout bij ophalen data", err); });
+                } else { 
+                    navigeerNaar('screen-ob-goal'); 
+                }
+            }).catch(err => { 
+                clearTimeout(fallbackTimer);
+                document.getElementById('loading-overlay').style.display = 'none'; 
+                console.error("Fout bij ophalen data", err); 
+                alert("Database fout: " + err.message);
+            });
         }
 
         function saveToFirebase(key, data) {
