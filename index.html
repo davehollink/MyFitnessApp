@@ -17,22 +17,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* Desktop = Grijs en gecentreerd. Mobile = 100% ruimte */
+        /* Responsive Layout */
         body { font-family: 'Inter', sans-serif; background-color: #e5e7eb; margin: 0; padding: 0; display: flex; justify-content: center; height: 100dvh; width: 100vw; overflow: hidden; }
-        
-        /* De hoofdcontainer is max 450px breed (telefoonformaat) op grote schermen, en 100% op kleine schermen */
         .app-container { background-color: #ffffff; width: 100%; max-width: 450px; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
         
         ::-webkit-scrollbar { display: none; }
-        
         .screen { transition: opacity 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: absolute; inset: 0; background-color: #f8f9fa; }
         .scrollable-content { flex: 1; overflow-y: auto; }
         .filter-scroll::-webkit-scrollbar { display: none; }
@@ -60,12 +54,14 @@
         
         html { scroll-behavior: smooth; }
         .hero-progress { background: conic-gradient(#4ade80 var(--p), #475569 0); border-radius: 50%; }
-        
         .set-row { transition: background-color 0.2s; }
         .set-row.completed { background-color: #dcfce7; }
         .set-row.completed .set-check { background-color: #22c55e; border-color: #22c55e; color: white; }
 
-        .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        /* FIX VOOR NOTITIEBOEK KG OVERLAP */
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
         #loading-overlay { position: absolute; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 10px; }
     </style>
 </head>
@@ -160,7 +156,7 @@
                     <h1 class="text-2xl font-black text-gray-900 tracking-tight leading-none" id="home-user-name">Sporter</h1>
                 </div>
                 <div class="relative cursor-pointer" onclick="navigeerNaar('screen-activity')">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Profiel" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md">
+                    <img id="home-profile-pic" src="https://i.pravatar.cc/150?img=11" alt="Profiel" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md">
                     <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
             </div>
@@ -252,8 +248,14 @@
                     <button onclick="openEditProfile()" class="text-[10px] uppercase tracking-widest font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full hover:bg-gray-200">Bewerk</button>
                     <button onclick="logOut()" class="text-[10px] uppercase tracking-widest font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100">Uitloggen</button>
                 </div>
-                <div class="flex flex-col items-center text-center">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Profiel" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg mb-3">
+                <div class="flex flex-col items-center text-center relative">
+                    <input type="file" id="profile-pic-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
+                    
+                    <div class="relative">
+                        <img id="main-profile-pic" onclick="document.getElementById('profile-pic-upload').click()" src="https://i.pravatar.cc/150?img=11" alt="Profiel" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg mb-3 cursor-pointer hover:opacity-80 transition">
+                        <div class="absolute bottom-4 right-0 bg-white rounded-full p-1 shadow-md pointer-events-none text-xs">✏️</div>
+                    </div>
+                    
                     <h2 class="text-2xl font-black text-gray-900" id="profile-name">Gebruiker</h2>
                     <span class="bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-md mt-2" id="profile-goal">Mijn Doel</span>
                 </div>
@@ -311,21 +313,19 @@
             </div>
             
             <div class="scrollable-content pb-12">
-                <div class="px-6 flex justify-between items-end mb-6 mt-6">
+                <div class="px-6 flex justify-between items-end mb-6 mt-8">
                     <div>
-                        <p class="text-[40px] font-black leading-none tracking-tighter" id="logbook-detail-dist">0.00</p>
+                        <p class="text-[50px] font-black leading-none tracking-tighter" id="logbook-detail-dist">0.00</p>
                         <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">Distance (km)</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-black leading-none tracking-tighter" id="logbook-detail-time">0:00:00</p>
+                        <p class="text-4xl font-black leading-none tracking-tighter" id="logbook-detail-time">0:00:00</p>
                         <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">Time</p>
                     </div>
                 </div>
                 
-                <div id="run-map" class="w-full h-56 relative bg-gray-900 mb-8 border-y border-gray-800 z-0"></div>
-                
-                <div class="px-6 space-y-6">
-                    <p class="text-sm font-bold text-gray-300" id="logbook-detail-title">Demanding Run</p>
+                <div class="px-6 space-y-6 mt-12">
+                    <p class="text-lg font-bold text-white" id="logbook-detail-title">Demanding Run</p>
                     
                     <div class="flex justify-between border-b border-gray-800 pb-6">
                         <div><p class="text-2xl font-black" id="logbook-detail-cals">0</p><p class="text-[10px] uppercase font-bold text-gray-500 tracking-widest mt-0.5">Calories</p></div>
@@ -426,7 +426,6 @@
 
     <script>
         // === JOUW FIREBASE CONFIGURATIE ===
-        // VERVANG DEZE GEGEVENS MET DE EXACTE KOPIE UIT JOUW FIREBASE CONSOLE!!
         const firebaseConfig = {
             apiKey: "AIzaSyAQfv6S2WPwNlLm3OYv_93BBj8cQPvLkFc",
             authDomain: "fitness-app-968b9.firebaseapp.com",
@@ -445,7 +444,7 @@
         const todayStr = `${todayDate.getFullYear()}-${(todayDate.getMonth()+1).toString().padStart(2,'0')}-${todayDate.getDate().toString().padStart(2,'0')}`;
         const monthNames = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
         
-        let userProfileData = { name: "Jordan", goal: "Conditie opbouwen", height: "183", weight: "75", gender: "Man", dob: "1996-03-29" };
+        let userProfileData = { name: "Jordan", goal: "Conditie opbouwen", height: "183", weight: "75", gender: "Man", dob: "1996-03-29", photoURL: null };
         let agendaPlansDB = {}; agendaPlansDB[todayStr] = ['kracht-chest-triceps'];
         let completedWorkoutsList = [];
 
@@ -460,6 +459,7 @@
 
         auth.onAuthStateChanged(user => {
             if (user) {
+                if(!userProfileData.photoURL && user.photoURL) userProfileData.photoURL = user.photoURL; // Pak Google foto!
                 loadUserData(user.uid);
             } else {
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -496,7 +496,6 @@
         function signInWithGoogle() {
             if(!auth) return;
             document.getElementById('loading-overlay').style.display = 'flex';
-            
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).catch((error) => {
                     document.getElementById('loading-overlay').style.display = 'none';
@@ -507,10 +506,9 @@
         function logOut() { auth.signOut(); }
 
         function loadUserData(uid) {
-            // VEILIGHEID: Stop met laden na 8 seconden en geef foutmelding als database weigert.
             const fallbackTimer = setTimeout(() => {
                 document.getElementById('loading-overlay').style.display = 'none';
-                alert("Let op: de database geeft geen antwoord. Controleer in je Firebase console of je 'Firestore Database' (Testmodus) daadwerkelijk hebt geactiveerd!");
+                alert("Let op: de database geeft geen antwoord. Controleer of Testmodus aanstaat in Firebase!");
             }, 8000);
 
             db.collection('users').doc(uid).get().then(doc => {
@@ -518,7 +516,11 @@
                 document.getElementById('loading-overlay').style.display = 'none';
                 if(doc.exists) {
                     let data = doc.data();
-                    if(data.profile) userProfileData = data.profile;
+                    if(data.profile) {
+                        userProfileData = data.profile;
+                        // Behoud Google foto als er geen in profiel stond opgeslagen
+                        if(!userProfileData.photoURL && auth.currentUser.photoURL) userProfileData.photoURL = auth.currentUser.photoURL;
+                    }
                     if(data.agenda) agendaPlansDB = data.agenda;
                     if(data.logbook) completedWorkoutsList = data.logbook;
                     completedWorkoutsList.forEach(log => { if(typeof log.date === 'string') log.date = new Date(log.date); });
@@ -543,10 +545,26 @@
         function selectGoal(element, goalText) { document.querySelectorAll('.goal-option').forEach(el => el.classList.remove('selected')); element.classList.add('selected'); userProfileData.goal = goalText; }
         function calculateAge(dobString) { if(!dobString) return "-"; const today = new Date(); const birthDate = new Date(dobString); let age = today.getFullYear() - birthDate.getFullYear(); const m = today.getMonth() - birthDate.getMonth(); if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; } return age; }
         
+        function handleProfilePicUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userProfileData.photoURL = e.target.result;
+                updateProfileUI();
+                saveToFirebase('profile', userProfileData);
+            }
+            reader.readAsDataURL(file);
+        }
+
         function updateProfileUI() {
             const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
             setVal('home-greeting', getWeekMonthString(todayDate)); setVal('home-user-name', userProfileData.name); 
             setVal('profile-name', userProfileData.name); setVal('profile-goal', userProfileData.goal); setVal('profile-height', userProfileData.height); setVal('profile-weight', userProfileData.weight); setVal('profile-age', calculateAge(userProfileData.dob));
+
+            let picUrl = userProfileData.photoURL || "https://i.pravatar.cc/150?img=11";
+            document.getElementById('home-profile-pic').src = picUrl;
+            document.getElementById('main-profile-pic').src = picUrl;
 
             const hTitle = document.getElementById('home-hero-title'); const hDesc = document.getElementById('home-hero-desc'); const hBtn = document.getElementById('home-hero-btn');
             if(userProfileData.goal === 'Kracht opbouwen') { hTitle.innerText = "Chest, Triceps & Shoulders"; hDesc.innerText = "Klaar om zwaar te liften?"; hBtn.setAttribute('onclick', "startWorkoutRoutine('kracht-chest-triceps')"); }
@@ -619,29 +637,38 @@
             let sortedLog = [...completedWorkoutsList].sort((a,b) => new Date(b.date) - new Date(a.date));
             sortedLog.forEach((log) => {
                 let isRun = log.type.includes('run'); let icon = isRun ? '🏃' : '🏋️'; let color = isRun ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'; let subtext = isRun ? `${log.distance} km • ${log.pace} /km` : `Krachtsessie voltooid`; let dStr = `${log.date.getDate().toString().padStart(2,'0')} ${monthNames[log.date.getMonth()].substring(0,3)}`;
-                let originalIndex = completedWorkoutsList.findIndex(x => x.id === log.id && x.date === log.date); let clickAction = isRun ? `onclick="openLogbookDetail(${originalIndex})"` : '';
-                cont.innerHTML += `<div class="border-b border-gray-100 p-4 flex gap-4 items-center cursor-pointer hover:bg-gray-50 transition" ${clickAction}><div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl ${color}">${icon}</div><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${log.title}</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1 tracking-widest">${dStr} • ${subtext}</p></div>${isRun ? `<span class="text-gray-300 font-bold">➔</span>` : ''}</div>`;
+                let originalIndex = completedWorkoutsList.findIndex(x => x.id === log.id && x.date === log.date); 
+                let clickAction = isRun ? `onclick="openLogbookDetail(${originalIndex})"` : '';
+                
+                cont.innerHTML += `
+                <div class="border-b border-gray-100 p-4 flex gap-4 items-center cursor-pointer hover:bg-gray-50 transition" ${clickAction}>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl ${color}">${icon}</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-sm text-gray-900">${log.title}</h4>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase mt-1 tracking-widest">${dStr} • ${subtext}</p>
+                    </div>
+                    <button onclick="deleteLogbookEntry(${originalIndex}); event.stopPropagation();" class="text-red-400 bg-red-50 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition">✕</button>
+                    ${isRun ? `<span class="text-gray-300 font-bold ml-2">➔</span>` : ''}
+                </div>`;
             });
         }
 
-        let mapInstance = null;
+        function deleteLogbookEntry(index) {
+            if(confirm("Weet je zeker dat je deze training wilt verwijderen?")) {
+                completedWorkoutsList.splice(index, 1);
+                if(auth && auth.currentUser) {
+                    let saveList = completedWorkoutsList.map(log => ({...log, date: (log.date instanceof Date ? log.date.toISOString() : log.date)}));
+                    saveToFirebase('logbook', saveList);
+                }
+                renderSportLogbook();
+            }
+        }
+
         function openLogbookDetail(index) {
             const log = completedWorkoutsList[index]; if(!log) return;
             let dStr = `${monthNames[log.date.getMonth()].substring(0,3)} ${log.date.getDate()}, ${log.date.getFullYear()} ${log.date.getHours()}:${log.date.getMinutes().toString().padStart(2,'0')}`;
             document.getElementById('logbook-detail-date').innerText = `Running. ${dStr}`; document.getElementById('logbook-detail-title').innerText = log.title; document.getElementById('logbook-detail-dist').innerText = log.distance; document.getElementById('logbook-detail-time').innerText = log.time; document.getElementById('logbook-detail-pace').innerText = log.pace; document.getElementById('logbook-detail-cals').innerText = log.cals;
             navigeerNaar('screen-logbook-detail');
-            setTimeout(() => {
-                try {
-                    if(!mapInstance) {
-                        mapInstance = L.map('run-map', { zoomControl: false, attributionControl: false }).setView([51.9225, 4.4791], 15);
-                        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(mapInstance);
-                        const routeCoords = [[51.9225, 4.4791], [51.9230, 4.4800], [51.9240, 4.4815], [51.9245, 4.4830], [51.9235, 4.4845], [51.9220, 4.4830], [51.9215, 4.4810], [51.9225, 4.4791]];
-                        const polyline = L.polyline(routeCoords, {color: '#ef4444', weight: 4, opacity: 0.9}).addTo(mapInstance);
-                        L.circleMarker([51.9225, 4.4791], { color: 'white', fillColor: '#ef4444', fillOpacity: 1, radius: 5, weight: 2 }).addTo(mapInstance);
-                        mapInstance.fitBounds(polyline.getBounds(), {padding: [20,20]});
-                    } else { mapInstance.invalidateSize(); }
-                } catch(e) { console.log("Kaart laden mislukt", e); }
-            }, 300);
         }
 
         const prCategories = { 'Borst': ['Bench Press', 'Incline Dumbbell Press', 'Chest Flyes'], 'Rug': ['Deadlift', 'Pull-ups (+kg)', 'Barbell Row', 'Lat Pulldown'], 'Benen': ['Squat', 'Leg Press', 'Romanian Deadlift'], 'Schouders & Armen': ['Overhead Press', 'Dumbbell Shoulder Press', 'Bicep Curl'] };
@@ -651,7 +678,7 @@
                 let itemsHtml = '';
                 prCategories[cat].forEach(ex => {
                     let savedPR = localStorage.getItem(`pr_${ex}`) || "";
-                    itemsHtml += `<div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl border border-gray-100"><span class="text-sm font-bold text-gray-800">${ex}</span><div class="relative"><input type="number" onblur="savePR('${ex}', this.value)" value="${savedPR}" placeholder="0" class="w-20 text-right bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-black text-gray-900 focus:outline-none focus:border-gray-900"><span class="absolute right-3 top-2.5 text-[10px] text-gray-400 font-bold pointer-events-none">KG</span></div></div>`;
+                    itemsHtml += `<div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl border border-gray-100"><span class="text-sm font-bold text-gray-800">${ex}</span><div class="relative"><input type="number" onblur="savePR('${ex}', this.value)" value="${savedPR}" placeholder="0" class="w-20 pr-8 text-right bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-black text-gray-900 focus:outline-none focus:border-gray-900"><span class="absolute right-3 top-2.5 text-[10px] text-gray-400 font-bold pointer-events-none">KG</span></div></div>`;
                 });
                 container.innerHTML += `<div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100"><h3 class="font-black text-gray-900 text-lg mb-4 tracking-tight">${cat}</h3><div class="space-y-2">${itemsHtml}</div></div>`;
             });
@@ -662,7 +689,7 @@
         const tRun = ["1KM Run|Ren je eerste KM", "5KM Finisher|Voltooi de 5K", "10KM Finisher|Voltooi de 10K", "16KM Hero|Voltooi 16KM", "Halve Marathon|21.1 KM Finisher", "Marathon|42.2 KM Finisher", "Snelheidsduivel|5K onder 25m", "Vroege Vogel|Ren voor 07:00", "Nachtbraker|Ren na 22:00", "Regenloper|Trotseer de buien", "Zonloper|Zweet in de zon", "Berggeit|100m Hoogtemeters", "Marathon x2|Twee keer de afstand", "Ultra Mind|Klaar voor meer", "Schoenen Versleten|100KM Totaal", "Forrest Gump|500KM Totaal"];
         const tStr = ["Eerste Lift|Pak het ijzer", "100kg Bench|De magische grens", "Bodyweight Squat|Squat je gewicht", "Deadlift Demon|2x BW Deadlift", "Pull-up Master|10 Unbroken", "Pomp Master|50 Push-ups", "Iron Chest|Consistentie", "Leg Day Lover|Nooit overslaan", "Biceps Bulge|Curls for the girls", "Triceps Horseshoe|Sterke armen", "Core of Steel|3 Min Plank", "Gym Rat|100x Gesport"];
         const tMisc= ["3 Dagen Streak|Lekker bezig", "7 Dagen Streak|Een week vol", "30 Dagen Streak|Niet te stoppen", "100 Dagen Streak|Legendarisch", "Hyrox Beginner|Eerste simulatie", "Hyrox Warrior|Klaar voor event", "Afvaller|Eerste kilo eraf", "Doel Bereikt|Wat nu?", "Waterdrinker|Blijf gehydrateerd", "Strekker|10x Cooling down", "Consistency|Sleutel tot succes", "App Fan|1 Maand lid", "App Pro|6 Maanden lid", "App Legend|1 Jaar lid", "Social|Deel een workout", "Morning Routine|Strakke start", "Weekend Warrior|Zaterdag sporten", "Sunday Funday|Zondag sporten", "No Excuses|Trainen in vakantie", "Gezond Eten|Voeding on point", "Mentaal Sterk|Geen opgave", "Inspiratie|Motiveer anderen"];
-        let idCounter = 1; [...tRun, ...tStr, ...tMisc].slice(0, 50).forEach((t, i) => { let parts = t.split('|'); let type = i < 3 ? 'gold' : (i < 10 ? 'silver' : (i < 20 ? 'bronze' : 'locked')); allTrophies.push({ id: idCounter++, title: parts[0], desc: parts[1], type: type, icon: tRun.includes(t) ? '🏃' : (tStr.includes(t) ? '🏋️' : '🔥') }); });
+        let idCounter = 1; [...tRun, ...tStr, ...tMisc].slice(0, 50).forEach((t, i) => { let parts = t.split('|'); allTrophies.push({ id: idCounter++, title: parts[0], desc: parts[1], type: 'locked', icon: tRun.includes(t) ? '🏃' : (tStr.includes(t) ? '🏋️' : '🔥') }); });
 
         function renderTrophies() {
             const topContainer = document.getElementById('profile-top-trophies'); topContainer.innerHTML = '';
@@ -751,8 +778,15 @@
         }
         function filterWorkouts(category, btnElement) { document.querySelectorAll('.filter-btn').forEach(btn => { btn.classList.remove('bg-gray-900', 'text-white', 'border-gray-900'); btn.classList.add('bg-white', 'text-gray-500', 'border-gray-200'); }); btnElement.classList.remove('bg-white', 'text-gray-500', 'border-gray-200'); btnElement.classList.add('bg-gray-900', 'text-white', 'border-gray-900'); document.querySelectorAll('.workout-card').forEach(card => { card.style.display = (category === 'all' || card.getAttribute('data-category') === category) ? 'block' : 'none'; }); }
 
+        // ================= TIMERS (BACKGROUND SAFE) =================
         let mainTimerInterval; let isPaused = false; let currentActiveWorkoutId = null;
-        function startWorkoutRoutine(workoutId) { currentActiveWorkoutId = workoutId; const data = workoutDatabase[workoutId]; clearInterval(mainTimerInterval); if(data.type === 'kracht') { setupStrengthWorkout(data); navigeerNaar('screen-active-strength'); } else { setupRunWorkout(data); navigeerNaar('screen-active-run'); } }
+        let workoutStartTime = 0; let runTargetEndTime = 0; let pausedTimeLeft = 0;
+
+        function startWorkoutRoutine(workoutId) { 
+            currentActiveWorkoutId = workoutId; const data = workoutDatabase[workoutId]; clearInterval(mainTimerInterval); 
+            if(data.type === 'kracht') { setupStrengthWorkout(data); navigeerNaar('screen-active-strength'); } 
+            else { setupRunWorkout(data); navigeerNaar('screen-active-run'); } 
+        }
         
         function stopWorkout() { 
             clearInterval(mainTimerInterval); 
@@ -761,20 +795,68 @@
                 let newLog = { id: currentActiveWorkoutId, date: new Date().toISOString(), type: w.type, title: w.title, target: w.target };
                 if(w.type.includes('run')) { newLog.distance = (w.totalTime/6).toFixed(2); newLog.time = `${Math.floor(w.totalTime)}:00`; newLog.pace = '6:00'; newLog.cals = w.totalTime*12; }
                 let localLog = {...newLog, date: new Date()}; completedWorkoutsList.unshift(localLog);
-                if(auth && auth.currentUser) { let saveList = completedWorkoutsList.map(log => ({...log, date: log.date.toISOString()})); saveToFirebase('logbook', saveList); }
+                if(auth && auth.currentUser) { let saveList = completedWorkoutsList.map(log => ({...log, date: (log.date instanceof Date ? log.date.toISOString() : log.date)})); saveToFirebase('logbook', saveList); }
             }
             currentActiveWorkoutId = null; updateProfileUI(); navigeerNaar('screen-home'); 
         }
         
+        function setupStrengthWorkout(data) { 
+            document.getElementById('active-strength-title').innerText = data.title; 
+            const list = document.getElementById('active-exercise-list'); list.innerHTML = ''; 
+            data.exercises.forEach((ex) => { let setsHtml = ''; for(let i=1; i<=ex.sets; i++) { setsHtml += `<div class="set-row flex items-center justify-between py-2 border-b border-gray-100 last:border-0 cursor-pointer" onclick="this.classList.toggle('completed')"><span class="text-xs font-bold text-gray-500 w-8">#${i}</span><span class="text-sm font-medium text-gray-900 flex-1 text-center">${ex.reps}</span><div class="set-check w-6 h-6 rounded border-2 border-gray-300 ml-4 flex items-center justify-center text-transparent"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg></div></div>`; } list.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100"><div class="mb-4"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${ex.target}</span><h3 class="text-md font-bold text-gray-900">${ex.name}</h3></div><div class="bg-gray-50 rounded-2xl p-3 px-4">${setsHtml}</div></div>`; }); 
+            
+            // Achtergrond veilige timer
+            workoutStartTime = Date.now();
+            const timerDisplay = document.getElementById('strength-timer'); 
+            mainTimerInterval = setInterval(() => { 
+                let elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
+                timerDisplay.innerText = `${Math.floor(elapsed / 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`; 
+            }, 1000); 
+        }
+
+        let runSteps = []; let currentRunStepIndex = 0; 
+        function setupRunWorkout(data) { 
+            document.getElementById('active-run-title').innerText = data.title; document.getElementById('active-run-schema-type').innerText = data.target; 
+            isPaused = false; runSteps = []; runSteps.push({ action: 'Warming Up', type: 'warmup', duration: data.warmup, icon: '🚶' }); 
+            if(data.type === 'run-interval') { for(let i=1; i<=data.reps; i++) { runSteps.push({ action: 'Hardlopen', type: 'run', duration: data.runMin, icon: '🏃', progress: `Interval ${i} van ${data.reps}` }); runSteps.push({ action: 'Joggen', type: 'walk', duration: data.walkMin, icon: '🚶', progress: `Rust ${i} van ${data.reps}` }); } } 
+            else { runSteps.push({ action: data.goalText || 'Doel', type: 'run', duration: data.runTime, icon: '🏃', progress: `Continue run` }); } 
+            runSteps.push({ action: 'Cooling Down', type: 'cooldown', duration: data.cooldown, icon: '🧊' }); 
+            
+            currentRunStepIndex = 0; 
+            loadRunStep(currentRunStepIndex); 
+            
+            mainTimerInterval = setInterval(() => { 
+                if(!isPaused) { 
+                    let timeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
+                    document.getElementById('run-timer').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+                    if(timeLeft <= 0) goToNextRunStep(); 
+                } 
+            }, 1000); 
+        }
+
+        function loadRunStep(index) { 
+            const step = runSteps[index]; 
+            runTargetEndTime = Date.now() + (step.duration * 1000); // Achtergrond veilige timestamp
+
+            document.getElementById('run-action').innerText = step.action; document.getElementById('run-progress').innerText = step.progress || "Voorbereiding"; document.getElementById('screen-active-run').className = `screen absolute inset-0 z-40 flex flex-col font-sans text-white bg-${step.type}`; 
+            let nextEl = document.getElementById('run-next-action'); 
+            if(index + 1 < runSteps.length) { let nextStep = runSteps[index + 1]; nextEl.innerText = `${nextStep.action} (${Math.floor(nextStep.duration / 60)}:${(nextStep.duration % 60).toString().padStart(2,'0')})`; } 
+            else { nextEl.innerText = "Klaar!"; } 
+            
+            let timeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
+            document.getElementById('run-timer').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+        }
+
         function skipRunStep() { if(isPaused) toggleRunPause(); goToNextRunStep(); }
-        function toggleRunPause() { isPaused = !isPaused; document.getElementById('run-action').innerText = isPaused ? "Gepauzeerd" : runSteps[currentRunStepIndex].action; }
-        
-        let strengthSeconds = 0;
-        function setupStrengthWorkout(data) { document.getElementById('active-strength-title').innerText = data.title; const list = document.getElementById('active-exercise-list'); list.innerHTML = ''; data.exercises.forEach((ex) => { let setsHtml = ''; for(let i=1; i<=ex.sets; i++) { setsHtml += `<div class="set-row flex items-center justify-between py-2 border-b border-gray-100 last:border-0 cursor-pointer" onclick="this.classList.toggle('completed')"><span class="text-xs font-bold text-gray-500 w-8">#${i}</span><span class="text-sm font-medium text-gray-900 flex-1 text-center">${ex.reps}</span><div class="set-check w-6 h-6 rounded border-2 border-gray-300 ml-4 flex items-center justify-center text-transparent"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg></div></div>`; } list.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100"><div class="mb-4"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${ex.target}</span><h3 class="text-md font-bold text-gray-900">${ex.name}</h3></div><div class="bg-gray-50 rounded-2xl p-3 px-4">${setsHtml}</div></div>`; }); strengthSeconds = 0; const timerDisplay = document.getElementById('strength-timer'); mainTimerInterval = setInterval(() => { strengthSeconds++; timerDisplay.innerText = `${Math.floor(strengthSeconds / 60).toString().padStart(2, '0')}:${(strengthSeconds % 60).toString().padStart(2, '0')}`; }, 1000); }
-        let runSteps = []; let currentRunStepIndex = 0; let runTimeLeft = 0;
-        function setupRunWorkout(data) { document.getElementById('active-run-title').innerText = data.title; document.getElementById('active-run-schema-type').innerText = data.target; isPaused = false; runSteps = []; runSteps.push({ action: 'Warming Up', type: 'warmup', duration: data.warmup, icon: '🚶' }); if(data.type === 'run-interval') { for(let i=1; i<=data.reps; i++) { runSteps.push({ action: 'Hardlopen', type: 'run', duration: data.runMin, icon: '🏃', progress: `Interval ${i} van ${data.reps}` }); runSteps.push({ action: 'Joggen', type: 'walk', duration: data.walkMin, icon: '🚶', progress: `Rust ${i} van ${data.reps}` }); } } else { runSteps.push({ action: data.goalText || 'Doel', type: 'run', duration: data.runTime, icon: '🏃', progress: `Continue run` }); } runSteps.push({ action: 'Cooling Down', type: 'cooldown', duration: data.cooldown, icon: '🧊' }); currentRunStepIndex = 0; loadRunStep(currentRunStepIndex); mainTimerInterval = setInterval(() => { if(!isPaused) { runTimeLeft--; updateRunUITimerOnly(); if(runTimeLeft <= 0) goToNextRunStep(); } }, 1000); }
-        function loadRunStep(index) { const step = runSteps[index]; runTimeLeft = step.duration; document.getElementById('run-action').innerText = step.action; document.getElementById('run-progress').innerText = step.progress || "Voorbereiding"; document.getElementById('screen-active-run').className = `screen absolute inset-0 z-40 flex flex-col font-sans text-white bg-${step.type}`; let nextEl = document.getElementById('run-next-action'); if(index + 1 < runSteps.length) { let nextStep = runSteps[index + 1]; nextEl.innerText = `${nextStep.action} (${Math.floor(nextStep.duration / 60)}:${(nextStep.duration % 60).toString().padStart(2,'0')})`; } else { nextEl.innerText = "Klaar!"; } updateRunUITimerOnly(); }
-        function updateRunUITimerOnly() { document.getElementById('run-timer').innerText = `${Math.floor(runTimeLeft / 60).toString().padStart(2, '0')}:${(runTimeLeft % 60).toString().padStart(2, '0')}`; }
+        function toggleRunPause() { 
+            isPaused = !isPaused; 
+            if(isPaused) {
+                pausedTimeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
+            } else {
+                runTargetEndTime = Date.now() + (pausedTimeLeft * 1000);
+            }
+            document.getElementById('run-action').innerText = isPaused ? "Gepauzeerd" : runSteps[currentRunStepIndex].action; 
+        }
         function goToNextRunStep() { currentRunStepIndex++; if(currentRunStepIndex >= runSteps.length) { stopWorkout(); } else { loadRunStep(currentRunStepIndex); } }
 
         window.onload = () => {
