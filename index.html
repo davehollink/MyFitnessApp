@@ -53,6 +53,7 @@
         .medal-locked { background: #f3f4f6; color: #9ca3af; border: 2px dashed #d1d5db; filter: grayscale(100%); opacity: 0.6;}
         
         html { scroll-behavior: smooth; }
+        .hero-progress { background: conic-gradient(#4ade80 var(--p), #475569 0); border-radius: 50%; }
         .set-row { transition: background-color 0.2s; }
         .set-row.completed { background-color: #dcfce7; }
         .set-row.completed .set-check { background-color: #22c55e; border-color: #22c55e; color: white; }
@@ -174,7 +175,7 @@
                         
                         <div class="z-10 ml-2 relative flex items-center justify-center cursor-pointer hover:scale-105 transition" onclick="document.getElementById('home-hero-btn').click()">
                             <div class="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/30 text-2xl shadow-inner">
-                                🔥
+                                ⚡️
                             </div>
                         </div>
 
@@ -192,6 +193,23 @@
                 <div class="mt-8 pl-6">
                     <h3 class="font-black text-gray-900 text-lg tracking-tight mb-4">Ontdek meer</h3>
                     <div class="flex gap-4 overflow-x-auto filter-scroll pr-6 pb-4">
+                        
+                        <div class="min-w-[200px] bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+                            <div><span class="text-2xl mb-2 block">🏋️‍♂️</span><h4 class="font-bold text-gray-900 text-sm tracking-tight leading-snug">Dumbbell Chest</h4><p class="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-widest">Kracht • 40 min</p></div>
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="openStrengthPreview('kracht-dumbbell-chest')" class="flex-1 bg-gray-50 text-gray-900 text-[9px] font-black uppercase tracking-widest py-2 rounded-full border border-gray-200 transition hover:bg-gray-100">Preview</button>
+                                <button onclick="startWorkoutRoutine('kracht-dumbbell-chest')" class="flex-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-full transition hover:bg-black">Start</button>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[200px] bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+                            <div><span class="text-2xl mb-2 block">🔥</span><h4 class="font-bold text-gray-900 text-sm tracking-tight leading-snug">Total Core</h4><p class="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-widest">Kracht • 20 min</p></div>
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="openStrengthPreview('kracht-total-core')" class="flex-1 bg-gray-50 text-gray-900 text-[9px] font-black uppercase tracking-widest py-2 rounded-full border border-gray-200 transition hover:bg-gray-100">Preview</button>
+                                <button onclick="startWorkoutRoutine('kracht-total-core')" class="flex-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-full transition hover:bg-black">Start</button>
+                            </div>
+                        </div>
+
                         <div class="min-w-[200px] bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
                             <div><span class="text-2xl mb-2 block">🦵</span><h4 class="font-bold text-gray-900 text-sm tracking-tight leading-snug">Legs & Cardio</h4><p class="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-widest">Kracht • 60 min</p></div>
                             <div class="flex gap-2 mt-4">
@@ -199,6 +217,7 @@
                                 <button onclick="startWorkoutRoutine('kracht-legs')" class="flex-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-full transition hover:bg-black">Start</button>
                             </div>
                         </div>
+
                         <div class="min-w-[200px] bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
                             <div><span class="text-2xl mb-2 block">🦍</span><h4 class="font-bold text-gray-900 text-sm tracking-tight leading-snug">Back & Biceps</h4><p class="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-widest">Kracht • 50 min</p></div>
                             <div class="flex gap-2 mt-4">
@@ -206,6 +225,7 @@
                                 <button onclick="startWorkoutRoutine('kracht-back-biceps')" class="flex-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest py-2 rounded-full transition hover:bg-black">Start</button>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -581,14 +601,14 @@
 
         // ================= OEFENINGEN BIBLIOTHEEK =================
         const exerciseLibrary = {
-            'Borst': ['Bench Press', 'Incline Dumbbell Press', 'Push-ups', 'Chest Flyes (Cable)', 'Chest Flyes (Dumbbell)', 'Decline Bench Press', 'Pec Deck Machine'],
-            'Rug': ['Deadlift', 'Pull-ups', 'Barbell Row', 'Lat Pulldown', 'Seated Cable Row', 'Single Arm Dumbbell Row', 'T-Bar Row', 'Face Pulls'],
+            'Borst': ['Bench Press', 'Incline Dumbbell Press', 'Push-ups', 'Chest Flyes (Cable)', 'Chest Flyes (Dumbbell)', 'Decline Bench Press', 'Pec Deck Machine', 'Supine dumbbell push', 'Supine dumbbell fly', 'Dumbbell hip-bridge press', 'Dumbbell hip-bridge fly'],
+            'Rug': ['Deadlift', 'Pull-ups', 'Barbell Row', 'Lat Pulldown', 'Seated Cable Row', 'Single Arm Dumbbell Row', 'T-Bar Row', 'Face Pulls', 'Dumbbell bent over row'],
             'Benen': ['Barbell Squat', 'Leg Press', 'Walking Lunges', 'Romanian Deadlift', 'Leg Extension', 'Hamstring Curl', 'Calf Raises', 'Bulgarian Split Squat'],
             'Schouders': ['Overhead Press', 'Dumbbell Shoulder Press', 'Lateral Raise', 'Front Raise', 'Upright Row', 'Reverse Pec Deck'],
             'Biceps': ['Barbell Curl', 'Dumbbell Curl', 'Hammer Curl', 'Preacher Curl', 'Cable Curl', 'Concentration Curl'],
             'Triceps': ['Tricep Pushdown (Rope)', 'Overhead Tricep Extension', 'Skullcrushers', 'Dips', 'Close-Grip Bench Press', 'Tricep Kickback'],
-            'Core': ['Plank', 'Crunches', 'Leg Raises', 'Russian Twist', 'Ab Roller', 'Bicycle Crunches', 'Cable Woodchopper'],
-            'Cardio': ['Hardlopen (band)', 'Fietsen', 'Roeimachine', 'Stairmaster', 'Touwtjespringen', 'Burpees', 'Jumping Jacks']
+            'Core': ['Plank', 'Crunches', 'Leg Raises', 'Russian Twist', 'Ab Roller', 'Bicycle Crunches', 'Cable Woodchopper', 'Climber taps', 'Plank walk-outs', 'Alt arm/leg raises', 'Side plank crunches'],
+            'Cardio': ['Hardlopen (band)', 'Fietsen', 'Roeimachine', 'Stairmaster', 'Touwtjespringen', 'Burpees', 'Jumping Jacks', 'High knees']
         };
 
         const schedule12Weeks5K = [ [[1, 2, 10], [2, 2, 6], [1, 1, 12]], [[1, 2, 12], [3, 2, 5], [1, 1, 14]], [[1, 2, 14], [4, 2, 4], [1, 1, 16]], [[1, 1, 10], [2, 1, 7], [1, 1, 12]], [[1, 1, 12], [4, 1, 5], [1, 1, 14]], [[1, 1, 14], [5, 1, 5], [1, 1, 16]], [[1, 1, 16], [6, 1, 5], [1, 1, 18]], [[1, 1, 10], [5, 1, 4], [1, 1, 12]], [[1, 1, 16], [6, 1, 5], [1, 1, 18]], [[1, 1, 18], [7, 1, 4], [1, 1, 20]], [[1, 1, 20], [8, 1, 3], [1, 1, 22]], [[1, 1, 15], '5km Wedstrijd', [7, 1, 4]] ];
@@ -603,7 +623,10 @@
             'kracht-back-biceps': { title: 'Back & Biceps', type: 'kracht', target: 'Kracht', exercises: [{ name: 'Warm-up: Pull-ups', target: 'Rug', sets: 3, reps: '8', weight: null }, { name: 'Bent Over Row (Barbell)', target: 'Rug', sets: 3, reps: '8', weight: 'kg' }, { name: 'Latt Pull-down (Cable)', target: 'Rug', sets: 4, reps: '8', weight: 'kg' }, { name: 'Seated Row', target: 'Rug', sets: 4, reps: '8', weight: 'kg' }, { name: 'Latt Pull-down (Machine)', target: 'Rug', sets: 4, reps: '8', weight: 'kg' }, { name: 'Bent over Dumbbell Row', target: 'Rug', sets: 3, reps: '8', weight: 'kg' }, { name: 'Bicep Curls (Dumbbell)', target: 'Biceps', sets: 4, reps: '10', weight: 'kg' }, { name: 'Hammer Curls (Dumbbell)', target: 'Biceps', sets: 4, reps: '10', weight: 'kg' }, { name: 'Reverse Curls (EZ-Bar)', target: 'Biceps', sets: 4, reps: '10', weight: 'kg' }, { name: 'Stretch', target: 'Cooling-down', sets: 1, reps: '10 MIN', weight: null }] },
             'kracht-legs': { title: 'Legs & Cardio', type: 'kracht', target: 'Kracht', exercises: [{ name: 'Warm-up: Lopen (Berg)', target: 'Cardio', sets: 1, reps: '10 MIN', weight: null }, { name: 'Squats (Smith Machine)', target: 'Benen', sets: 3, reps: '8', weight: 'kg' }, { name: 'Deadlift', target: 'Benen', sets: 3, reps: '8', weight: 'kg' }, { name: 'Leg Press', target: 'Benen', sets: 3, reps: '10', weight: 'kg' }, { name: 'Leg Extension', target: 'Benen', sets: 4, reps: '10', weight: 'kg' }, { name: 'Hamstring Curl', target: 'Benen', sets: 4, reps: '10', weight: 'kg' }, { name: 'Calf Raises (Smith Machine)', target: 'Kuiten', sets: 5, reps: '15', weight: 'kg' }, { name: 'Uitfietsen', target: 'Cardio', sets: 1, reps: '15 MIN', weight: null }, { name: 'Stretch', target: 'Cooling-down', sets: 1, reps: '10 MIN', weight: null }] },
             'hardlopen-afvallen': { title: 'Lichte Cardio Verbranding', type: 'run-continuous', target: 'Afvallen', warmup: 300, runTime: 1200, cooldown: 300 },
-            'hardlopen-hyrox': { title: 'Hyrox Interval Sprints', type: 'run-interval', target: 'Hyrox', warmup: 300, runMin: 60, walkMin: 90, reps: 8, cooldown: 300 }
+            'hardlopen-hyrox': { title: 'Hyrox Interval Sprints', type: 'run-interval', target: 'Hyrox', warmup: 300, runMin: 60, walkMin: 90, reps: 8, cooldown: 300 },
+            // NIEUWE TOEGEVOEGDE SCHEMA'S
+            'kracht-dumbbell-chest': { title: 'Dumbbell Chest Workout', type: 'kracht', target: 'Borst', time: '40 min', exercises: [ { name: 'Push-ups', target: 'Borst', sets: 3, reps: '15', weight: null }, { name: 'Supine dumbbell push', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Supine dumbbell fly', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell hip-bridge press', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell hip-bridge fly', target: 'Borst', sets: 3, reps: '12', weight: 'kg' }, { name: 'Dumbbell bent over row', target: 'Rug', sets: 3, reps: '12', weight: 'kg' } ] },
+            'kracht-total-core': { title: 'Total Core Darebee', type: 'kracht', target: 'Core', time: '20 min', exercises: [ { name: 'High knees', target: 'Cardio', sets: 3, reps: '30', weight: null }, { name: 'Climber taps', target: 'Core', sets: 3, reps: '10', weight: null }, { name: 'Plank walk-outs', target: 'Core', sets: 3, reps: '4', weight: null }, { name: 'Alt arm/leg raises', target: 'Core', sets: 3, reps: '4', weight: null }, { name: 'Side plank crunches', target: 'Core', sets: 3, reps: '4', weight: null } ] }
         };
 
         function populateDatabase(schemaData, prefix, targetName) {
@@ -849,7 +872,9 @@
             
             // KRACHT & HYROX SCHEMA'S
             const specialCardsData = [ 
-                { id: 'kracht-chest-triceps', category: 'kracht', title: 'Chest, Triceps & Shoulders', time: '60 min', targetColor: 'blue' }, 
+                { id: 'kracht-dumbbell-chest', category: 'kracht', title: 'Dumbbell Chest', time: '40 min', targetColor: 'blue' }, 
+                { id: 'kracht-total-core', category: 'kracht', title: 'Total Core', time: '20 min', targetColor: 'blue' }, 
+                { id: 'kracht-chest-triceps', category: 'kracht', title: 'Chest & Triceps', time: '60 min', targetColor: 'blue' }, 
                 { id: 'kracht-back-biceps', category: 'kracht', title: 'Back & Biceps', time: '50 min', targetColor: 'blue' }, 
                 { id: 'kracht-legs', category: 'kracht', title: 'Legs & Cardio', time: '60 min', targetColor: 'blue' }, 
                 { id: 'hardlopen-hyrox', category: 'hyrox', title: 'Hyrox Interval Sprints', time: '30 min', targetColor: 'green' } 
@@ -909,7 +934,8 @@
             const container = document.getElementById('modal-workout-list-container'); container.innerHTML = '';
             Object.keys(workoutDatabase).forEach(workoutId => {
                 const w = workoutDatabase[workoutId]; const iconColor = w.type === 'kracht' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'; const icon = w.type === 'kracht' ? '🏋️' : '🏃';
-                container.innerHTML += `<div class="modal-workout-item bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="addWorkoutToAgenda('${workoutId}')"><div class="flex items-center gap-4 flex-1"><div class="w-10 h-10 rounded-xl ${iconColor} flex items-center justify-center font-bold text-lg">${icon}</div><div><h3 class="text-sm font-bold text-gray-900 tracking-tight modal-title">${w.title}</h3><p class="text-[11px] text-gray-400 font-medium uppercase tracking-widest modal-target">${w.target}</p></div></div><span class="text-lg font-bold text-gray-400 tracking-tight">➔</span></div>`;
+                const badge = w.target === 'Zelfgemaakt' ? '<span class="bg-indigo-100 text-indigo-800 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ml-2">EIGEN</span>' : '';
+                container.innerHTML += `<div class="modal-workout-item bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition" onclick="addWorkoutToAgenda('${workoutId}')"><div class="flex items-center gap-4 flex-1"><div class="w-10 h-10 rounded-xl ${iconColor} flex items-center justify-center font-bold text-lg">${icon}</div><div><h3 class="text-sm font-bold text-gray-900 tracking-tight modal-title">${w.title}${badge}</h3><p class="text-[11px] text-gray-400 font-medium uppercase tracking-widest modal-target">${w.target}</p></div></div><span class="text-lg font-bold text-gray-400 tracking-tight">➔</span></div>`;
             });
         }
         function searchModal() { const query = document.getElementById('workout-search-input').value.toLowerCase(); document.querySelectorAll('.modal-workout-item').forEach(item => { const title = item.querySelector('.modal-title').innerText.toLowerCase(); const target = item.querySelector('.modal-target').innerText.toLowerCase(); item.style.display = (title.includes(query) || target.includes(query)) ? 'flex' : 'none'; }); }
@@ -931,46 +957,53 @@
             document.querySelectorAll('.filter-btn').forEach(btn => { btn.classList.remove('bg-gray-900', 'text-white', 'border-gray-900'); btn.classList.add('bg-white', 'text-gray-500', 'border-gray-200'); }); 
             btnElement.classList.remove('bg-white', 'text-gray-500', 'border-gray-200'); btnElement.classList.add('bg-gray-900', 'text-white', 'border-gray-900'); 
             document.querySelectorAll('.workout-card').forEach(card => { card.style.display = (category === 'all' || card.getAttribute('data-category') === category) ? 'block' : 'none'; }); 
-            document.getElementById('workout-list-container').scrollTop = 0; // Fix voor de scroll-bug!
+            document.getElementById('workout-list-container').scrollTop = 0;
         }
 
-        // ================= AUDIO & TIMERS (BACKGROUND SAFE) =================
+        // ================= TIMERS & WAKE LOCK (ACHTERGROND) =================
         let mainTimerInterval; let isPaused = false; let currentActiveWorkoutId = null;
         let workoutStartTime = 0; let runTargetEndTime = 0; let pausedTimeLeft = 0;
         let audioCtx;
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); console.log('Scherm blijft aan!'); }
+            } catch (err) { console.error('Wake Lock failed:', err.message); }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); }
+        }
 
         function initAudio() {
             try {
                 if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if(audioCtx.state === 'suspended') audioCtx.resume();
-            } catch(e) { console.log('Audio init failed'); }
+            } catch(e) {}
         }
 
         function playBeep() {
             try {
                 if(!audioCtx) return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime); // Hoge piep
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
                 gain.gain.setValueAtTime(1, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                osc.start(audioCtx.currentTime);
-                osc.stop(audioCtx.currentTime + 0.3);
+                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
             } catch(e) {}
         }
 
         function startWorkoutRoutine(workoutId) { 
-            initAudio(); // Activeer geluid direct bij klik van gebruiker
+            initAudio(); requestWakeLock(); 
             currentActiveWorkoutId = workoutId; const data = workoutDatabase[workoutId]; clearInterval(mainTimerInterval); 
             if(data.type === 'kracht' || !data.type.includes('run')) { setupStrengthWorkout(data); navigeerNaar('screen-active-strength'); } 
             else { setupRunWorkout(data); navigeerNaar('screen-active-run'); } 
         }
         
         function stopWorkout() { 
-            clearInterval(mainTimerInterval); 
+            clearInterval(mainTimerInterval); releaseWakeLock(); 
+            
             if(currentActiveWorkoutId && workoutDatabase[currentActiveWorkoutId]) {
                 let w = workoutDatabase[currentActiveWorkoutId];
                 let newLog = { id: currentActiveWorkoutId, date: new Date().toISOString(), type: w.type, title: w.title, target: w.target };
@@ -1008,10 +1041,7 @@
                 if(!isPaused) { 
                     let timeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
                     document.getElementById('run-timer').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
-                    if(timeLeft <= 0) {
-                        playBeep(); // Speel geluid af zodra timer 0 raakt!
-                        goToNextRunStep(); 
-                    }
+                    if(timeLeft <= 0) { playBeep(); goToNextRunStep(); }
                 } 
             }, 1000); 
         }
@@ -1032,11 +1062,8 @@
         function skipRunStep() { if(isPaused) toggleRunPause(); goToNextRunStep(); }
         function toggleRunPause() { 
             isPaused = !isPaused; 
-            if(isPaused) {
-                pausedTimeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000));
-            } else {
-                runTargetEndTime = Date.now() + (pausedTimeLeft * 1000);
-            }
+            if(isPaused) { pausedTimeLeft = Math.max(0, Math.round((runTargetEndTime - Date.now()) / 1000)); } 
+            else { runTargetEndTime = Date.now() + (pausedTimeLeft * 1000); }
             document.getElementById('run-action').innerText = isPaused ? "Gepauzeerd" : runSteps[currentRunStepIndex].action; 
         }
         function goToNextRunStep() { currentRunStepIndex++; if(currentRunStepIndex >= runSteps.length) { stopWorkout(); } else { loadRunStep(currentRunStepIndex); } }
